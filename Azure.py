@@ -3,7 +3,7 @@ import asyncio
 import io
 import glob
 import os
-from gtts import gTTS
+# from gtts import gTTS
 from io import BytesIO
 import sys
 import time

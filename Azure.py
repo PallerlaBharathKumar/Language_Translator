@@ -1,242 +1,302 @@
 import streamlit as st
-import pandas as pd
-import numpy as np
-
-st.title("Azure Api's first Doc")
-
-st.header('Welcome to our page know any language in a minute:')
-st.write(":star:"*1, ":heart:"*36 ,":star:"*1)
-
-
-#&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-
-
-
-Entered_text = st.text_input('Enter the text of your choice:')
-
-
-#&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-
-st.info('select the languages to display')
-
-
-lang_telugu=st.checkbox('telugu',key=None)
-lang_italy=st.checkbox('italy',key=1)
-lang_hindi=st.checkbox('hindi',key=2)
-
-if lang_telugu and lang_italy and lang_hindi:
-    lang= 'te','it','hi'
-elif lang_telugu and lang_italy:
-    lang= 'te','it'
-elif lang_telugu and lang_hindi:
-    lang= 'te','hi'
-elif lang_italy and lang_hindi:
-    lang= 'it','hi'
-elif lang_telugu:
-    lang= 'te'
-elif lang_italy:
-    lang= 'it'
-elif lang_hindi:
-    lang= 'hi'
+import asyncio
+import io
+import glob
+import os
+from gtts import gTTS
+from io import BytesIO
+import sys
+import time
+import uuid
+import requests
+from urllib.parse import urlparse
+from io import BytesIO
+# To install this module, run:
+# python -m pip install Pillow
+from io import BytesIO
+from PIL import Image
+from PIL import ImageDraw
+import json
+import googletrans
+from googletrans import Translator
 
 
-button_translate=st.button('Click me',help='To translate language')
-##############################################################################################
-if button_translate:
+
+
+st.set_page_config(layout="wide")
+st.sidebar.image('images/translate.jpg', width=300)
+st.sidebar.header('Used googletrans library to detect and translate the text and using google speech recognition, it will translate any lanuguage to your desired language')
+st.sidebar.markdown('It can translate any language (default-"english")')
+
+
+app_mode = st.sidebar.radio(
+    "",
+    ("About Me","Language Translation","text to speech"),
+)
+
+
+st.write('<style>div.row-widget.stRadio > div{flex-direction:row;}</style>', unsafe_allow_html=True)
+
+st.sidebar.markdown('---')
+st.sidebar.write('N.V.Suresh Krishna | sureshkrishnanv24@gmail.com https://github.com/sureshkrishna123')
+
+if app_mode =='About Me':
+    #st.image('images/wp4498220.jpg', use_column_width=True)
+    st.markdown('''
+              # About Me \n 
+                Hey this is ** N.V.Suresh Krishna **. \n
+                
+                
+                Also check me out on Social Media
+                - [git-Hub](https://github.com/sureshkrishna123)
+                - [LinkedIn](https://www.linkedin.com/in/suresh-krishna-nv/)
+                - [Instagram](https://www.instagram.com/worldofsuresh._/)
+                - [Portfolio](https://sureshkrishna123.github.io/sureshportfolio/)
+                - [Blog](https://ingenious-point.blogspot.com/)\n
+                ''')
+               
+
+if app_mode=='Language Translation':
+  st.image(os.path.join('./images','translate.jpg'),use_column_width=True )
+  st.title("Language Translation")
+  st.header('Language translation taking text as an input')
+  st.markdown("Using googletrans library to detect and translate the text to your desired language")
+  #st.text("Detect the objects in images")
+  
+  detect=st.text_input('Enter the text to detect (No language Restriction):')
+
+  detect_select=st.selectbox("select language to translate" ,['arabic','bangla','chinese','dutch','english','french','german','greek','hindi','hungarian','indonesian','irish','italian','japanese','kannada','korean','malayalam','nepali','portuguese','punjabi','russian','spanish','tamil','telugu','turkish','urdu'],key=1)
+
+  if detect_select == 'arabic':
+        detect_lang= 'ar'
+  elif detect_select == 'bangla':
+        detect_lang= 'bn'
+  elif detect_select == 'chinese':
+        detect_lang= 'lzh'
+  elif detect_select == 'dutch':
+        detect_lang= 'nl'
+  elif detect_select == 'english':
+        detect_lang= 'en'
+  elif detect_select == 'french':
+        detect_lang= 'fr'
+  elif detect_select == 'german':
+        detect_lang= 'de'
+  elif detect_select == 'greek':
+        detect_lang= 'el'
+  elif detect_select == 'hindi':
+        detect_lang= 'hi'
+  elif detect_select == 'hungarian':
+        detect_lang= 'hu'
+  elif detect_select == 'indonesian':
+        detect_lang= 'id'
+  elif detect_select == 'irish':
+        detect_lang= 'ga'
+  elif detect_select == 'italian':
+        detect_lang= 'it'
+  elif detect_select == 'japanese':
+        detect_lang= 'ja'
+  elif detect_select == 'kannada':
+        detect_lang= 'kn'
+  elif detect_select == 'korean':
+        detect_lang= 'ko'
+  elif detect_select == 'malayalam':
+        detect_lang= 'ml'
+  elif detect_select == 'nepali':
+        detect_lang= 'ne'
+  elif detect_select == 'portuguesei':
+        detect_lang= 'pt'
+  elif detect_select == 'punjabi':
+        detect_lang= 'pa'
+  elif detect_select == 'russian':
+        detect_lang= 'ru'
+  elif detect_select == 'spanish':
+        detect_lang= 'es'
+  elif detect_select == 'tamil':
+        detect_lang= 'ta'
+  elif detect_select == 'telugu':
+        detect_lang= 'te'  
+  elif detect_select == 'turkish':
+        detect_lang= 'tr'
+  elif detect_select == 'urdu':
+        detect_lang= 'ur'  
+
+  button_translate=st.button('Click me',help='To give the image')
+
+
+  if button_translate and detect :
+    try:
+        translater = Translator()
+        out = translater.translate(detect, dest=detect_lang)
+        st.header(out.text)
+    except:
+        st.error("!! Please enter input in any language")
+
+  st.markdown('---')
+
+if app_mode=='text to speech':
+    
+    st.image(os.path.join('./images','translate.jpg'),use_column_width=True )
+    st.title("Text to speech")
+    st.header('Language translation taking text as an input')
+    st.markdown("Using googletrans library to detect and translate the text to your desired language")
+  #st.text("Detect the objects in images")
+    try:
+        os.mkdir("temp")
+    except:
+        pass
+    translator = Translator()
+  
+    text=st.text_input('Enter the text to convert to speech (No language Restriction):')
+
+    input_text=st.selectbox("select language to of the text" ,['arabic','bangla','chinese','dutch','english','french','german','greek','hindi','hungarian','indonesian','irish','italian','japanese','kannada','korean','malayalam','nepali','portuguese','punjabi','russian','spanish','tamil','telugu','turkish','urdu'],key=1)
+    
+    output_language=st.selectbox("select language to convert" ,['arabic','bangla','chinese','dutch','english','french','german','greek','hindi','hungarian','indonesian','irish','italian','japanese','kannada','korean','malayalam','nepali','portuguese','punjabi','russian','spanish','tamil','telugu','turkish','urdu'],key=2)
+
+    if input_text == 'arabic':
+        input_lang= 'ar'
+    elif input_text == 'bangla':
+        input_lang= 'bn'
+    elif input_text == 'chinese':
+        input_lang= 'lzh'
+    elif input_text == 'dutch':
+        input_lang= 'nl'
+    elif input_text == 'english':
+        input_lang= 'en'
+    elif input_text == 'french':
+        input_lang= 'fr'
+    elif input_text == 'german':
+        input_lang= 'de'
+    elif input_text == 'greek':
+        input_lang= 'el'
+    elif input_text == 'hindi':
+        input_lang= 'hi'
+    elif input_text == 'hungarian':
+        input_lang= 'hu'
+    elif input_text == 'indonesian':
+        input_lang= 'id'
+    elif input_text == 'irish':
+        input_lang= 'ga'
+    elif input_text == 'italian':
+        input_lang= 'it'
+    elif input_text == 'japanese':
+        input_lang= 'ja'
+    elif input_text == 'kannada':
+        input_lang= 'kn'
+    elif input_text == 'korean':
+        input_lang= 'ko'
+    elif input_text == 'malayalam':
+        input_lang= 'ml'
+    elif input_text == 'nepali':
+        input_lang= 'ne'
+    elif input_text == 'portuguesei':
+        input_lang= 'pt'
+    elif input_text == 'punjabi':
+        input_lang= 'pa'
+    elif input_text == 'russian':
+        input_lang= 'ru'
+    elif input_text == 'spanish':
+        input_lang= 'es'
+    elif input_text == 'tamil':
+        input_lang= 'ta'
+    elif input_text == 'telugu':
+        input_lang= 'te'  
+    elif input_text == 'turkish':
+        input_lang= 'tr'
+    elif input_text == 'urdu':
+        input_lang= 'ur'  
+    
+    if output_language == 'arabic':
+        output_lang= 'ar'
+    elif output_language == 'bangla':
+        output_lang= 'bn'
+    elif output_language == 'chinese':
+        output_lang= 'lzh'
+    elif output_language == 'dutch':
+        output_lang= 'nl'
+    elif output_language == 'english':
+        output_lang= 'en'
+    elif output_language == 'french':
+        output_lang= 'fr'
+    elif output_language == 'german':
+        output_lang= 'de'
+    elif output_language == 'greek':
+        output_lang= 'el'
+    elif output_language == 'hindi':
+        output_lang= 'hi'
+    elif output_language == 'hungarian':
+        output_lang= 'hu'
+    elif output_language == 'indonesian':
+        output_lang= 'id'
+    elif output_language == 'irish':
+        output_lang= 'ga'
+    elif output_language == 'italian':
+        output_lang= 'it'
+    elif output_language == 'japanese':
+        output_lang= 'ja'
+    elif output_language == 'kannada':
+        output_lang= 'kn'
+    elif output_language == 'korean':
+        output_lang= 'ko'
+    elif output_language == 'malayalam':
+        output_lang= 'ml'
+    elif output_language == 'nepali':
+        output_lang= 'ne'
+    elif output_language == 'portuguesei':
+        output_lang= 'pt'
+    elif output_language == 'punjabi':
+        output_lang= 'pa'
+    elif output_language == 'russian':
+        output_lang= 'ru'
+    elif output_language == 'spanish':
+        output_lang= 'es'
+    elif output_language == 'tamil':
+        output_lang= 'ta'
+    elif output_language == 'telugu':
+        output_lang= 'te'  
+    elif output_language == 'turkish':
+        output_lang= 'tr'
+    elif output_language == 'urdu':
+        output_lang= 'ur'  
+        
     
     
-    import requests, uuid, json
-
-    # Add your subscription key and endpoint
-    subscription_key = "4079576ad66b4c7497cc6d654ec51da3"
-    endpoint = "https://api.cognitive.microsofttranslator.com/"
-
-    # Add your location, also known as region. The default is global.
-    # This is required if using a Cognitive Services resource.
-    location = "centralindia"
-
-    path = '/translate'
-    constructed_url = endpoint + path
-
-    params = {
-        'api-version': '3.0',
-        'from': 'en',
-        'to': [lang]
-    }
-    constructed_url = endpoint + path
-
-    headers = {
-        'Ocp-Apim-Subscription-Key': subscription_key,
-        'Ocp-Apim-Subscription-Region': location,
-        'Content-type': 'application/json',
-        'X-ClientTraceId': str(uuid.uuid4())
-    }
-
-    # You can pass more than one object in body.
-    body = [{
-        'text': Entered_text
-    }]
-
-    request = requests.post(constructed_url, params=params, headers=headers, json=body)
-    response = request.json()
-
-    st.success(json.dumps(response, sort_keys=True, ensure_ascii=False, indent=4, separators=(',', ': ')))
-
-
-
-########################################################################################################################
-
-
-
-
-#&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-
-
-detect=st.text_input('Enter the text to detect:')
-
-#&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-
-
-st.info('select the language to detect')
-
-detect_telugu=st.checkbox('telugu_lang',key=3)
-detect_italy=st.checkbox('italy_lang',key=4)
-detect_hindi=st.checkbox('hindi_lang',key=5)
-
-if detect_telugu and detect_italy and detect_hindi:
-    detect_lang= 'te','it','hi'
-elif detect_telugu and detect_italy:
-    detect_lang= 'te','it'
-elif detect_telugu and detect_hindi:
-    detect_lang= 'te','hi'
-elif detect_italy and detect_hindi:
-    detect_lang= 'it','hi'
-elif detect_telugu:
-    detect_lang= 'te'
-elif detect_italy:
-    detect_lang= 'it'
-elif detect_hindi:
-    detect_lang= 'hi'
-
-
-button_detect=st.button('Click me',help='To detect language')
-########################################################################################################################
-
-if button_detect:
-    import requests, uuid, json
-
-    # Add your subscription key and endpoint
-    subscription_key = "4079576ad66b4c7497cc6d654ec51da3"
-    endpoint = "https://api.cognitive.microsofttranslator.com"
-
-    # Add your location, also known as region. The default is global.
-    # This is required if using a Cognitive Services resource.
-    location = "centralindia"
-
-    path = '/translate'
-    constructed_url = endpoint + path
-
-    params = {
-        'api-version': '3.0',
-        'to': [detect_lang]
-    }
-    constructed_url = endpoint + path
-
-    headers = {
-        'Ocp-Apim-Subscription-Key': subscription_key,
-        'Ocp-Apim-Subscription-Region': location,
-        'Content-type': 'application/json',
-        'X-ClientTraceId': str(uuid.uuid4())
-    }
-
-    # You can pass more than one object in body.
-    body = [{
-        'text': detect
-    }]
-
-    request = requests.post(constructed_url, params=params, headers=headers, json=body)
-    response123 = request.json()
-
-
-    st.success(json.dumps(response123, sort_keys=True, ensure_ascii=False, indent=4, separators=(',', ': ')))
-
-
-
-###############################################################################################################################
-
-
-
-
-
-
-#&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-
-
-latin=st.text_input('Enter the text to convert to latin:') 
-
-#&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-
-
-st.info('select the language to convert lo latin')
-
-
-
-latin_data = ['Telugu','Italy','Hindi']
-
-latin_button=st.radio('Select lang',options=latin_data)
-
-
-
-if latin_button=='Telugu':
-    latin_lang= 'te'
-elif latin_button=='Italy' :
-    latin_lang= 'it'
-elif latin_button=='Hindi':
-    latin_lang= 'hi'
-
-
-
-
-###################################################################################################################################
-if latin_button:
-    import requests, uuid, json
-
-    # Add your subscription key and endpoint
-    subscription_key = "4079576ad66b4c7497cc6d654ec51da3"
-    endpoint = "https://api.cognitive.microsofttranslator.com"
-
-    # Add your location, also known as region. The default is global.
-    # This is required if using a Cognitive Services resource.
-    location = "centralindia"
-
-    path = '/translate'
-    constructed_url = endpoint + path
-
-    params = {
-        'api-version': '3.0',
-        # to translate
-        'to': latin_lang,
-        'toScript': 'latn'
-    }
-    constructed_url = endpoint + path
-
-    headers = {
-        'Ocp-Apim-Subscription-Key': subscription_key,
-        'Ocp-Apim-Subscription-Region': location,
-        'Content-type': 'application/json',
-        'X-ClientTraceId': str(uuid.uuid4())
-    }
-
-    # You can pass more than one object in body.
-    body = [{
-        'text': latin
-    }]
-    request = requests.post(constructed_url, params=params, headers=headers, json=body)
-    response444 = request.json()
-
-    st.success(json.dumps(response444, sort_keys=True, ensure_ascii=False, indent=4, separators=(',', ': ')))
-
-
-######################################################################################################################################
-
-st.write(":star:"*36)
+    def text_to_speech(input_language, output_language, text):
+        translation = translator.translate(text, src=input_lang, dest=output_lang)
+        trans_text = translation.text
+        tts = gTTS(trans_text, lang=output_lang, slow=False)
+        try:
+            my_file_name = text[0:20]
+        except:
+            my_file_name = "audio"
+        tts.save(f"temp/{my_file_name}.mp3")
+        return my_file_name, trans_text
+
+    display_output_text = st.checkbox("Display output text")
+
+    if st.button("convert"):
+        result, output_text = text_to_speech(input_lang, output_lang, text)
+        audio_file = open(f"temp/{result}.mp3", "rb")
+        audio_bytes = audio_file.read()
+        st.markdown(f"## Your audio:")
+        st.audio(audio_bytes, format="audio/mp3", start_time=0)
+
+        if display_output_text:
+            st.markdown(f"## Output text:")
+            st.write(f" {output_text}")
+
+
+    def remove_files(n):
+        mp3_files = glob.glob("temp/*mp3")
+        if len(mp3_files) != 0:
+            now = time.time()
+            n_days = n * 86400
+            for f in mp3_files:
+                if os.stat(f).st_mtime < now - n_days:
+                    os.remove(f)
+                    print("Deleted ", f)
+
+
+    remove_files(7)   
+
+    st.markdown('---')
+    
